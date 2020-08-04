@@ -6,6 +6,7 @@ class HashTableEntry:
         self.key = key
         self.value = value
         self.next = None
+        self.head = None
 
 
 # Hash table can't have fewer than this many slots
@@ -23,6 +24,7 @@ class HashTable:
     def __init__(self, capacity):
         self.capacity = capacity
         self.storage = [None] * capacity
+        self.keys = 0
 
 
     def get_num_slots(self):
@@ -35,7 +37,7 @@ class HashTable:
 
         Implement this.
         """
-        # Your code here
+        return self.capacity
 
 
     def get_load_factor(self):
@@ -44,7 +46,7 @@ class HashTable:
 
         Implement this.
         """
-        # Your code here
+        return self.keys / self.capacity
 
 
     def fnv1(self, key):
@@ -54,7 +56,7 @@ class HashTable:
         Implement this, and/or DJB2.
         """
 
-        # Your code here
+        pass
 
 
     def djb2(self, key):
@@ -87,9 +89,22 @@ class HashTable:
         Hash collisions should be handled with Linked List Chaining.
 
         Implement this.
-        """
+        
+        Code from day 1 below:
         i = self.hash_index(key)
         self.storage[i] = value
+        """
+        i = self.hash_index(key)
+        hashtable = HashTableEntry(key, value)
+        node = self.storage[i]
+
+        if node is not None:
+            self.storage[i] = hashtable
+            self.storage[i].next = node
+        
+        else:
+            self.storage[i] = hashtable
+            self.keys += 1
 
 
     def delete(self, key):
@@ -99,9 +114,27 @@ class HashTable:
         Print a warning if the key is not found.
 
         Implement this.
-        """
+        
+        Code from day 1 below:
         i = self.hash_index(key)
         self.storage[i] = None
+        """
+        i = self.hash_index(key)
+        node = self.storage[i]
+
+        if node.key == key:
+            self.storage[i] = node.next
+            return
+
+        while node is not None:
+            prev = node
+            node = node.next
+
+            if node.key == key:
+                prev.next = node.next
+                self.storage[i].next = None
+                return
+        return
 
 
     def get(self, key):
@@ -111,9 +144,19 @@ class HashTable:
         Returns None if the key is not found.
 
         Implement this.
-        """
+        
+        Code from day 1 below
         i = self.hash_index(key)
         return self.storage[i]
+        """
+        i = self.hash_index(key)
+        node = self.storage[i]
+
+        while node is not None:
+            if node.key == key:
+                return node.value
+            else:
+                node = node.next
 
 
     def resize(self, new_capacity):
@@ -123,7 +166,23 @@ class HashTable:
 
         Implement this.
         """
-        # Your code here
+
+        # Old keys
+        old = self.storage
+
+        # Set capacity to be equal to a new capacity
+        self.capacity = new_capacity
+
+        # Create storage with new set capacity
+        self.storage = [None] * new_capacity
+
+        # Need to loop through data and add to new storage
+        for keys in old:
+            if keys:
+                current = keys
+            while current:
+                self.put(current.key, current.value)
+                current = current.next
 
 
 
